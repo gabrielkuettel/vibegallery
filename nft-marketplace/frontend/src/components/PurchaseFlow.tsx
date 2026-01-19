@@ -65,18 +65,18 @@ export function PurchaseFlow({ listing, assetInfo, onSuccess, onCancel }: Purcha
       <div className="price-breakdown">
         <div className="price-row">
           <span>Price:</span>
-          <span>{priceInAlgo.toFixed(3)} ALGO</span>
+          <span>{priceInAlgo.toFixed(2)} ALGO</span>
         </div>
         <div className="price-row commission">
           <span>Marketplace Fee (2.5%):</span>
-          <span>{commission.toFixed(3)} ALGO</span>
+          <span>{commission.toFixed(2)} ALGO</span>
         </div>
         <div className="price-row total">
           <span>Total:</span>
-          <span>{priceInAlgo.toFixed(3)} ALGO</span>
+          <span>{priceInAlgo.toFixed(2)} ALGO</span>
         </div>
         <p className="seller-receives">
-          Seller receives: {(priceInAlgo - commission).toFixed(3)} ALGO
+          Seller receives: {(priceInAlgo - commission).toFixed(2)} ALGO
         </p>
       </div>
 

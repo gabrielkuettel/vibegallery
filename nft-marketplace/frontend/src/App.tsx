@@ -94,7 +94,7 @@ function Home() {
   }, [isConfigured, algodClient])
 
   const formatPrice = (microAlgo: bigint) => {
-    return (Number(microAlgo) / 1_000_000).toFixed(3)
+    return (Number(microAlgo) / 1_000_000).toFixed(2)
   }
 
   const formatAddress = (address: string) => {

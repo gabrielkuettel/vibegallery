@@ -98,7 +98,7 @@ export function ListingForm() {
           </div>
 
           <div className="price-breakdown">
-            <p>You will receive: {price ? (parseFloat(price) * 0.975).toFixed(3) : '0'} ALGO (after 2.5% commission)</p>
+            <p>You will receive: {price ? (parseFloat(price) * 0.975).toFixed(2) : '0'} ALGO (after 2.5% commission)</p>
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={isLoading}>
