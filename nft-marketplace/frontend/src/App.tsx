@@ -7,15 +7,12 @@ import { ListingForm } from './components/ListingForm'
 import { MyNfts } from './components/MyNfts'
 import { PurchaseFlow } from './components/PurchaseFlow'
 import { useMarketplace, ActiveListing } from './hooks/useMarketplace'
-import { CURRENT_NETWORK } from './config/wallet'
 import './App.css'
 
 function NetworkBanner() {
-  if (CURRENT_NETWORK === 'mainnet') return null
-
   return (
     <div className="network-banner">
-      {CURRENT_NETWORK === 'testnet' ? 'Testnet' : 'LocalNet'} — This is not real money
+      Testnet — This is not real money
     </div>
   )
 }
