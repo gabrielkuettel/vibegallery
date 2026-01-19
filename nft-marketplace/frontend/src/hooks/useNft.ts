@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { algodClient } from '../config/wallet'
 
 export interface NftMetadata {
   name: string
@@ -18,12 +19,11 @@ export interface OwnedAsset {
 }
 
 export function useNft() {
-  const { activeAddress, transactionSigner, algodClient } = useWallet()
+  // Only use transactionSigner from useWallet - algodClient is broken and returns localhost
+  const { activeAddress, transactionSigner } = useWallet()
 
-  // Create AlgorandClient configured with the wallet's signer
+  // Create AlgorandClient using OUR algodClient from wallet.ts (not useWallet's broken one)
   const algorand = useMemo(() => {
-    if (!algodClient) return null
-
     const client = AlgorandClient.fromClients({ algod: algodClient })
 
     if (activeAddress && transactionSigner) {
@@ -31,7 +31,7 @@ export function useNft() {
     }
 
     return client
-  }, [algodClient, activeAddress, transactionSigner])
+  }, [activeAddress, transactionSigner])
 
   // Create a new NFT (ASA)
   const createNft = useCallback(async (metadata: NftMetadata) => {

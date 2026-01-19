@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
-import { useWallet } from '@txnlab/use-wallet-react'
 import { WalletConnect } from './components/WalletConnect'
 import { CreateNft } from './components/CreateNft'
 import { NftGallery } from './components/NftGallery'
@@ -65,14 +64,13 @@ function App() {
 
 function Home() {
   const { getActiveListings, isConnected, isConfigured } = useMarketplace()
-  const { algodClient } = useWallet()
   const [listings, setListings] = useState<ActiveListing[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedListing, setSelectedListing] = useState<ActiveListing | null>(null)
 
   const loadListings = async () => {
-    if (!isConfigured || !algodClient) return
+    if (!isConfigured) return
 
     setIsLoading(true)
     setError(null)
@@ -89,9 +87,8 @@ function Home() {
   }
 
   useEffect(() => {
-    console.log('[Home] useEffect triggered', { isConfigured, hasAlgodClient: !!algodClient })
     loadListings()
-  }, [isConfigured, algodClient])
+  }, [isConfigured])
 
   const formatPrice = (microAlgo: bigint) => {
     return (Number(microAlgo) / 1_000_000).toFixed(2)

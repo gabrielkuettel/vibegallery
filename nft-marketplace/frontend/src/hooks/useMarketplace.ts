@@ -3,8 +3,8 @@ import { useWallet } from '@txnlab/use-wallet-react'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { NftMarketplaceClient } from '../contracts/NftMarketplaceClient'
-import { APP_ID, CURRENT_NETWORK } from '../config/wallet'
-import algosdk, { Algodv2, getApplicationAddress } from 'algosdk'
+import { APP_ID, algodClient } from '../config/wallet'
+import algosdk, { getApplicationAddress } from 'algosdk'
 
 // Box MBR for listings (must match contract constant)
 const BOX_MBR = 35300n
@@ -14,17 +14,6 @@ const LISTING_BOX_PREFIX = new Uint8Array([108]) // "l" in ASCII
 
 // Derive app address from APP_ID
 const APP_ADDRESS = APP_ID !== 0n ? getApplicationAddress(APP_ID) : ''
-
-// Create a hardcoded testnet algod client for read operations (bypasses use-wallet issues)
-const getReadOnlyAlgodClient = (): Algodv2 => {
-  if (CURRENT_NETWORK === 'testnet') {
-    return new Algodv2('', 'https://testnet-api.4160.nodely.dev', 443)
-  } else if (CURRENT_NETWORK === 'mainnet') {
-    return new Algodv2('', 'https://mainnet-api.4160.nodely.dev', 443)
-  }
-  // localnet fallback
-  return new Algodv2('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'http://localhost', 4001)
-}
 
 // Listing type for the frontend
 export interface ActiveListing {
@@ -39,12 +28,11 @@ export interface ActiveListing {
 }
 
 export function useMarketplace() {
-  const { activeAddress, transactionSigner, algodClient } = useWallet()
+  // Only use transactionSigner from useWallet - algodClient is broken and returns localhost
+  const { activeAddress, transactionSigner } = useWallet()
 
-  // Create AlgorandClient configured with the wallet's signer
+  // Create AlgorandClient using OUR algodClient from wallet.ts (not useWallet's broken one)
   const algorand = useMemo(() => {
-    if (!algodClient) return null
-
     const client = AlgorandClient.fromClients({ algod: algodClient })
 
     if (activeAddress && transactionSigner) {
@@ -52,7 +40,7 @@ export function useMarketplace() {
     }
 
     return client
-  }, [algodClient, activeAddress, transactionSigner])
+  }, [activeAddress, transactionSigner])
 
   // Create typed marketplace client
   const marketplaceClient = useMemo(() => {
@@ -214,8 +202,8 @@ export function useMarketplace() {
 
   // Get all active listings by reading box storage directly (no indexer needed)
   const getActiveListings = useCallback(async (): Promise<ActiveListing[]> => {
-    // Use hardcoded read-only client to avoid use-wallet network issues
-    const readClient = getReadOnlyAlgodClient()
+    // Use our algodClient from wallet.ts (not useWallet's broken one)
+    const readClient = algodClient
 
     const listings: ActiveListing[] = []
 
