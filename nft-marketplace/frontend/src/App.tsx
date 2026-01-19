@@ -139,6 +139,14 @@ function Home() {
         </div>
       )}
 
+      {isConfigured && isLoading && (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p className="loading-text">Fetching listings from the blockchain...</p>
+          <p className="loading-subtext">This may take a moment</p>
+        </div>
+      )}
+
       {isConfigured && listings.length === 0 && !isLoading && (
         <div className="info-box">
           <h3>No NFTs Listed Yet</h3>
