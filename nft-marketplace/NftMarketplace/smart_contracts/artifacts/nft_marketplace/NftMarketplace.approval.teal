@@ -1,0 +1,915 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 8 4 35300
+    bytecblock "collectedCommission" "l" "admin" 0x151f7c75
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/nft_marketplace/contract.algo.ts:49
+    // collectedCommission = GlobalState<uint64>({ initialValue: Uint64(0) })
+    bytec_0 // "collectedCommission"
+    intc_1 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/nft_marketplace/contract.algo.ts:43-44
+    // @contract({ stateTotals: { globalUints: 2, globalBytes: 1 } })
+    // export class NftMarketplace extends Contract {
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    bz main_create_NoOp@16
+    pushbytess 0x69575b40 0x27b33ec5 0xf0bc767c 0xb639d4bc 0x92525937 0x366c4950 0x9e6a10a6 0x11b41ba6 0x1c355366 0xac8b24de // method "optInToAsset(pay,uint64)void", method "listNft(pay,axfer,uint64)void", method "buyNft(pay,address,uint64)void", method "cancelListing(uint64)void", method "updatePrice(uint64,uint64)void", method "withdrawCommission()void", method "getListing(address,uint64)(address,uint64,bool)", method "listingExists(address,uint64)bool", method "getCollectedCommission()uint64", method "getAdmin()address"
+    txna ApplicationArgs 0
+    match optInToAsset listNft buyNft cancelListing updatePrice withdrawCommission getListing listingExists getCollectedCommission getAdmin
+    err
+
+main_create_NoOp@16:
+    // smart_contracts/nft_marketplace/contract.algo.ts:43-44
+    // @contract({ stateTotals: { globalUints: 2, globalBytes: 1 } })
+    // export class NftMarketplace extends Contract {
+    pushbytes 0xb8447b36 // method "createApplication()void"
+    txna ApplicationArgs 0
+    match createApplication
+    err
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.createApplication[routing]() -> void:
+createApplication:
+    // smart_contracts/nft_marketplace/contract.algo.ts:46
+    // admin = GlobalState<Account>()
+    bytec_2 // "admin"
+    // smart_contracts/nft_marketplace/contract.algo.ts:58
+    // this.admin.value = Txn.sender
+    txn Sender
+    app_global_put
+    // smart_contracts/nft_marketplace/contract.algo.ts:57
+    // createApplication(): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.optInToAsset[routing]() -> void:
+optInToAsset:
+    // smart_contracts/nft_marketplace/contract.algo.ts:66
+    // optInToAsset(mbrPay: gtxn.PaymentTxn, asset: Asset): void {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/nft_marketplace/contract.algo.ts:68
+    // assert(mbrPay.receiver === Global.currentApplicationAddress, 'Payment must be to app')
+    dig 1
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // Payment must be to app
+    // smart_contracts/nft_marketplace/contract.algo.ts:69
+    // assert(mbrPay.amount >= 100_000, 'Payment must cover asset MBR')
+    swap
+    gtxns Amount
+    pushint 100000 // 100000
+    >=
+    assert // Payment must cover asset MBR
+    // smart_contracts/nft_marketplace/contract.algo.ts:72-79
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Global.currentApplicationAddress,
+    //     xferAsset: asset,
+    //     assetAmount: 0,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/nft_marketplace/contract.algo.ts:74
+    // assetReceiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/nft_marketplace/contract.algo.ts:76
+    // assetAmount: 0,
+    intc_1 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // smart_contracts/nft_marketplace/contract.algo.ts:72-78
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Global.currentApplicationAddress,
+    //     xferAsset: asset,
+    //     assetAmount: 0,
+    //     fee: 0,
+    //   })
+    intc_3 // 4
+    itxn_field TypeEnum
+    // smart_contracts/nft_marketplace/contract.algo.ts:77
+    // fee: 0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/nft_marketplace/contract.algo.ts:72-79
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Global.currentApplicationAddress,
+    //     xferAsset: asset,
+    //     assetAmount: 0,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/nft_marketplace/contract.algo.ts:66
+    // optInToAsset(mbrPay: gtxn.PaymentTxn, asset: Asset): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.listNft[routing]() -> void:
+listNft:
+    // smart_contracts/nft_marketplace/contract.algo.ts:88
+    // listNft(mbrPay: gtxn.PaymentTxn, nftXfer: gtxn.AssetTransferTxn, price: uint64): void {
+    txn GroupIndex
+    pushint 2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/nft_marketplace/contract.algo.ts:90
+    // assert(price > 0, 'Price must be positive')
+    dup
+    assert // Price must be positive
+    // smart_contracts/nft_marketplace/contract.algo.ts:93
+    // assert(mbrPay.receiver === Global.currentApplicationAddress, 'MBR payment must be to app')
+    dig 2
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // MBR payment must be to app
+    // smart_contracts/nft_marketplace/contract.algo.ts:94
+    // assert(mbrPay.amount >= BOX_MBR, 'MBR payment insufficient for box storage')
+    uncover 2
+    gtxns Amount
+    intc 4 // 35300
+    >=
+    assert // MBR payment insufficient for box storage
+    // smart_contracts/nft_marketplace/contract.algo.ts:97
+    // assert(nftXfer.assetReceiver === Global.currentApplicationAddress, 'NFT must be sent to app')
+    dig 1
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert // NFT must be sent to app
+    // smart_contracts/nft_marketplace/contract.algo.ts:98
+    // assert(nftXfer.assetAmount === Uint64(1), 'Must transfer exactly 1 NFT')
+    dig 1
+    gtxns AssetAmount
+    intc_0 // 1
+    ==
+    assert // Must transfer exactly 1 NFT
+    // smart_contracts/nft_marketplace/contract.algo.ts:99
+    // assert(nftXfer.sender === Txn.sender, 'NFT sender must be caller')
+    dig 1
+    gtxns Sender
+    txn Sender
+    ==
+    assert // NFT sender must be caller
+    // smart_contracts/nft_marketplace/contract.algo.ts:101
+    // const asset = nftXfer.xferAsset
+    swap
+    gtxns XferAsset
+    // smart_contracts/nft_marketplace/contract.algo.ts:102
+    // const listingKey: ListingKey = { seller: Txn.sender, assetId: asset.id }
+    txn Sender
+    swap
+    itob
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:52
+    // listings = BoxMap<ListingKey, Listing>({ keyPrefix: 'l' })
+    bytec_1 // "l"
+    swap
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:105
+    // assert(!this.listings(listingKey).exists, 'Listing already exists')
+    dup
+    box_len
+    bury 1
+    !
+    assert // Listing already exists
+    // smart_contracts/nft_marketplace/contract.algo.ts:109
+    // seller: Txn.sender,
+    txn Sender
+    // smart_contracts/nft_marketplace/contract.algo.ts:108-112
+    // this.listings(listingKey).value = {
+    //   seller: Txn.sender,
+    //   price: price,
+    //   isActive: true,
+    // }
+    uncover 2
+    itob
+    concat
+    pushbytes 0x80
+    concat
+    box_put
+    // smart_contracts/nft_marketplace/contract.algo.ts:88
+    // listNft(mbrPay: gtxn.PaymentTxn, nftXfer: gtxn.AssetTransferTxn, price: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.buyNft[routing]() -> void:
+buyNft:
+    // smart_contracts/nft_marketplace/contract.algo.ts:121
+    // buyNft(payment: gtxn.PaymentTxn, seller: Account, asset: Asset): void {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/nft_marketplace/contract.algo.ts:122
+    // const listingKey: ListingKey = { seller: seller, assetId: asset.id }
+    dup
+    itob
+    dig 2
+    swap
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:52
+    // listings = BoxMap<ListingKey, Listing>({ keyPrefix: 'l' })
+    bytec_1 // "l"
+    swap
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:125
+    // assert(this.listings(listingKey).exists, 'Listing does not exist')
+    dup
+    box_len
+    bury 1
+    assert // Listing does not exist
+    // smart_contracts/nft_marketplace/contract.algo.ts:126
+    // const listing = clone(this.listings(listingKey).value)
+    dup
+    box_get
+    pop
+    // smart_contracts/nft_marketplace/contract.algo.ts:127
+    // assert(listing.isActive, 'Listing is not active')
+    dup
+    pushint 320 // 320
+    getbit
+    assert // Listing is not active
+    // smart_contracts/nft_marketplace/contract.algo.ts:128
+    // assert(listing.seller === seller, 'Seller mismatch')
+    dup
+    extract 0 32
+    dig 4
+    ==
+    assert // Seller mismatch
+    // smart_contracts/nft_marketplace/contract.algo.ts:131
+    // const price = listing.price
+    pushint 32 // 32
+    extract_uint64
+    // smart_contracts/nft_marketplace/contract.algo.ts:132
+    // const commission: uint64 = (price * Uint64(COMMISSION_NUMERATOR)) / Uint64(COMMISSION_DENOMINATOR)
+    dup
+    pushint 25 // 25
+    *
+    pushint 1000 // 1000
+    /
+    // smart_contracts/nft_marketplace/contract.algo.ts:133
+    // const sellerProceeds: uint64 = price - commission
+    dup2
+    -
+    // smart_contracts/nft_marketplace/contract.algo.ts:136
+    // assert(payment.receiver === Global.currentApplicationAddress, 'Payment must be to app')
+    dig 6
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // Payment must be to app
+    // smart_contracts/nft_marketplace/contract.algo.ts:137
+    // assert(payment.amount >= price, 'Payment insufficient')
+    uncover 6
+    gtxns Amount
+    uncover 3
+    >=
+    assert // Payment insufficient
+    // smart_contracts/nft_marketplace/contract.algo.ts:140
+    // assert(Txn.sender !== seller, 'Cannot buy your own NFT')
+    txn Sender
+    dig 5
+    !=
+    assert // Cannot buy your own NFT
+    // smart_contracts/nft_marketplace/contract.algo.ts:143-150
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Txn.sender,
+    //     xferAsset: asset,
+    //     assetAmount: 1,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/nft_marketplace/contract.algo.ts:145
+    // assetReceiver: Txn.sender,
+    txn Sender
+    // smart_contracts/nft_marketplace/contract.algo.ts:147
+    // assetAmount: 1,
+    intc_0 // 1
+    itxn_field AssetAmount
+    uncover 4
+    itxn_field XferAsset
+    itxn_field AssetReceiver
+    // smart_contracts/nft_marketplace/contract.algo.ts:143-149
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Txn.sender,
+    //     xferAsset: asset,
+    //     assetAmount: 1,
+    //     fee: 0,
+    //   })
+    intc_3 // 4
+    itxn_field TypeEnum
+    // smart_contracts/nft_marketplace/contract.algo.ts:148
+    // fee: 0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/nft_marketplace/contract.algo.ts:143-150
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Txn.sender,
+    //     xferAsset: asset,
+    //     assetAmount: 1,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/nft_marketplace/contract.algo.ts:153-159
+    // itxn
+    //   .payment({
+    //     receiver: seller,
+    //     amount: sellerProceeds,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    itxn_field Amount
+    dig 2
+    itxn_field Receiver
+    // smart_contracts/nft_marketplace/contract.algo.ts:153-158
+    // itxn
+    //   .payment({
+    //     receiver: seller,
+    //     amount: sellerProceeds,
+    //     fee: 0,
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    // smart_contracts/nft_marketplace/contract.algo.ts:157
+    // fee: 0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/nft_marketplace/contract.algo.ts:153-159
+    // itxn
+    //   .payment({
+    //     receiver: seller,
+    //     amount: sellerProceeds,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/nft_marketplace/contract.algo.ts:162
+    // this.collectedCommission.value = this.collectedCommission.value + commission
+    intc_1 // 0
+    // smart_contracts/nft_marketplace/contract.algo.ts:49
+    // collectedCommission = GlobalState<uint64>({ initialValue: Uint64(0) })
+    bytec_0 // "collectedCommission"
+    // smart_contracts/nft_marketplace/contract.algo.ts:162
+    // this.collectedCommission.value = this.collectedCommission.value + commission
+    app_global_get_ex
+    assert // check GlobalState exists
+    +
+    // smart_contracts/nft_marketplace/contract.algo.ts:49
+    // collectedCommission = GlobalState<uint64>({ initialValue: Uint64(0) })
+    bytec_0 // "collectedCommission"
+    // smart_contracts/nft_marketplace/contract.algo.ts:162
+    // this.collectedCommission.value = this.collectedCommission.value + commission
+    swap
+    app_global_put
+    // smart_contracts/nft_marketplace/contract.algo.ts:165
+    // this.listings(listingKey).delete()
+    box_del
+    pop
+    // smart_contracts/nft_marketplace/contract.algo.ts:168-174
+    // itxn
+    //   .payment({
+    //     receiver: seller,
+    //     amount: BOX_MBR,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/nft_marketplace/contract.algo.ts:171
+    // amount: BOX_MBR,
+    intc 4 // 35300
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/nft_marketplace/contract.algo.ts:168-173
+    // itxn
+    //   .payment({
+    //     receiver: seller,
+    //     amount: BOX_MBR,
+    //     fee: 0,
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    // smart_contracts/nft_marketplace/contract.algo.ts:172
+    // fee: 0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/nft_marketplace/contract.algo.ts:168-174
+    // itxn
+    //   .payment({
+    //     receiver: seller,
+    //     amount: BOX_MBR,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/nft_marketplace/contract.algo.ts:121
+    // buyNft(payment: gtxn.PaymentTxn, seller: Account, asset: Asset): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.cancelListing[routing]() -> void:
+cancelListing:
+    // smart_contracts/nft_marketplace/contract.algo.ts:181
+    // cancelListing(asset: Asset): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/nft_marketplace/contract.algo.ts:182
+    // const listingKey: ListingKey = { seller: Txn.sender, assetId: asset.id }
+    txn Sender
+    dig 1
+    itob
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:52
+    // listings = BoxMap<ListingKey, Listing>({ keyPrefix: 'l' })
+    bytec_1 // "l"
+    swap
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:185
+    // assert(this.listings(listingKey).exists, 'Listing does not exist')
+    dup
+    box_len
+    bury 1
+    assert // Listing does not exist
+    // smart_contracts/nft_marketplace/contract.algo.ts:186
+    // const listing = clone(this.listings(listingKey).value)
+    dup
+    box_get
+    pop
+    // smart_contracts/nft_marketplace/contract.algo.ts:187
+    // assert(listing.seller === Txn.sender, 'Only seller can cancel listing')
+    extract 0 32
+    txn Sender
+    ==
+    assert // Only seller can cancel listing
+    // smart_contracts/nft_marketplace/contract.algo.ts:190-197
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Txn.sender,
+    //     xferAsset: asset,
+    //     assetAmount: 1,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/nft_marketplace/contract.algo.ts:192
+    // assetReceiver: Txn.sender,
+    txn Sender
+    // smart_contracts/nft_marketplace/contract.algo.ts:194
+    // assetAmount: 1,
+    intc_0 // 1
+    itxn_field AssetAmount
+    uncover 2
+    itxn_field XferAsset
+    itxn_field AssetReceiver
+    // smart_contracts/nft_marketplace/contract.algo.ts:190-196
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Txn.sender,
+    //     xferAsset: asset,
+    //     assetAmount: 1,
+    //     fee: 0,
+    //   })
+    intc_3 // 4
+    itxn_field TypeEnum
+    // smart_contracts/nft_marketplace/contract.algo.ts:195
+    // fee: 0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/nft_marketplace/contract.algo.ts:190-197
+    // itxn
+    //   .assetTransfer({
+    //     assetReceiver: Txn.sender,
+    //     xferAsset: asset,
+    //     assetAmount: 1,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/nft_marketplace/contract.algo.ts:200
+    // this.listings(listingKey).delete()
+    box_del
+    pop
+    // smart_contracts/nft_marketplace/contract.algo.ts:203-209
+    // itxn
+    //   .payment({
+    //     receiver: Txn.sender,
+    //     amount: BOX_MBR,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/nft_marketplace/contract.algo.ts:205
+    // receiver: Txn.sender,
+    txn Sender
+    // smart_contracts/nft_marketplace/contract.algo.ts:206
+    // amount: BOX_MBR,
+    intc 4 // 35300
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/nft_marketplace/contract.algo.ts:203-208
+    // itxn
+    //   .payment({
+    //     receiver: Txn.sender,
+    //     amount: BOX_MBR,
+    //     fee: 0,
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    // smart_contracts/nft_marketplace/contract.algo.ts:207
+    // fee: 0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/nft_marketplace/contract.algo.ts:203-209
+    // itxn
+    //   .payment({
+    //     receiver: Txn.sender,
+    //     amount: BOX_MBR,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/nft_marketplace/contract.algo.ts:181
+    // cancelListing(asset: Asset): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.updatePrice[routing]() -> void:
+updatePrice:
+    // smart_contracts/nft_marketplace/contract.algo.ts:217
+    // updatePrice(asset: Asset, newPrice: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/nft_marketplace/contract.algo.ts:218
+    // assert(newPrice > 0, 'Price must be positive')
+    dup
+    assert // Price must be positive
+    // smart_contracts/nft_marketplace/contract.algo.ts:220
+    // const listingKey: ListingKey = { seller: Txn.sender, assetId: asset.id }
+    txn Sender
+    uncover 2
+    itob
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:52
+    // listings = BoxMap<ListingKey, Listing>({ keyPrefix: 'l' })
+    bytec_1 // "l"
+    swap
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:223
+    // assert(this.listings(listingKey).exists, 'Listing does not exist')
+    dup
+    box_len
+    bury 1
+    assert // Listing does not exist
+    // smart_contracts/nft_marketplace/contract.algo.ts:224
+    // const listing = clone(this.listings(listingKey).value)
+    dup
+    box_get
+    pop
+    // smart_contracts/nft_marketplace/contract.algo.ts:225
+    // assert(listing.seller === Txn.sender, 'Only seller can update price')
+    dup
+    extract 0 32
+    dup
+    txn Sender
+    ==
+    assert // Only seller can update price
+    // smart_contracts/nft_marketplace/contract.algo.ts:226
+    // assert(listing.isActive, 'Listing is not active')
+    swap
+    pushint 320 // 320
+    getbit
+    assert // Listing is not active
+    // smart_contracts/nft_marketplace/contract.algo.ts:229-233
+    // this.listings(listingKey).value = {
+    //   seller: listing.seller,
+    //   price: newPrice,
+    //   isActive: true,
+    // }
+    uncover 2
+    itob
+    concat
+    pushbytes 0x80
+    concat
+    box_put
+    // smart_contracts/nft_marketplace/contract.algo.ts:217
+    // updatePrice(asset: Asset, newPrice: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.withdrawCommission[routing]() -> void:
+withdrawCommission:
+    // smart_contracts/nft_marketplace/contract.algo.ts:241
+    // assert(Txn.sender === this.admin.value, 'Only admin can withdraw commission')
+    txn Sender
+    intc_1 // 0
+    // smart_contracts/nft_marketplace/contract.algo.ts:46
+    // admin = GlobalState<Account>()
+    bytec_2 // "admin"
+    // smart_contracts/nft_marketplace/contract.algo.ts:241
+    // assert(Txn.sender === this.admin.value, 'Only admin can withdraw commission')
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    assert // Only admin can withdraw commission
+    // smart_contracts/nft_marketplace/contract.algo.ts:243
+    // const commission = this.collectedCommission.value
+    intc_1 // 0
+    // smart_contracts/nft_marketplace/contract.algo.ts:49
+    // collectedCommission = GlobalState<uint64>({ initialValue: Uint64(0) })
+    bytec_0 // "collectedCommission"
+    // smart_contracts/nft_marketplace/contract.algo.ts:243
+    // const commission = this.collectedCommission.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/nft_marketplace/contract.algo.ts:244
+    // assert(commission > 0, 'No commission to withdraw')
+    dup
+    assert // No commission to withdraw
+    // smart_contracts/nft_marketplace/contract.algo.ts:49
+    // collectedCommission = GlobalState<uint64>({ initialValue: Uint64(0) })
+    bytec_0 // "collectedCommission"
+    // smart_contracts/nft_marketplace/contract.algo.ts:247
+    // this.collectedCommission.value = Uint64(0)
+    intc_1 // 0
+    app_global_put
+    // smart_contracts/nft_marketplace/contract.algo.ts:250-256
+    // itxn
+    //   .payment({
+    //     receiver: this.admin.value,
+    //     amount: commission,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/nft_marketplace/contract.algo.ts:252
+    // receiver: this.admin.value,
+    intc_1 // 0
+    // smart_contracts/nft_marketplace/contract.algo.ts:46
+    // admin = GlobalState<Account>()
+    bytec_2 // "admin"
+    // smart_contracts/nft_marketplace/contract.algo.ts:252
+    // receiver: this.admin.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field Receiver
+    itxn_field Amount
+    // smart_contracts/nft_marketplace/contract.algo.ts:250-255
+    // itxn
+    //   .payment({
+    //     receiver: this.admin.value,
+    //     amount: commission,
+    //     fee: 0,
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    // smart_contracts/nft_marketplace/contract.algo.ts:254
+    // fee: 0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/nft_marketplace/contract.algo.ts:250-256
+    // itxn
+    //   .payment({
+    //     receiver: this.admin.value,
+    //     amount: commission,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/nft_marketplace/contract.algo.ts:239
+    // withdrawCommission(): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.getListing[routing]() -> void:
+getListing:
+    // smart_contracts/nft_marketplace/contract.algo.ts:265-266
+    // @readonly
+    // getListing(seller: Account, assetId: uint64): Listing {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/nft_marketplace/contract.algo.ts:267
+    // const listingKey: ListingKey = { seller: seller, assetId: assetId }
+    itob
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:52
+    // listings = BoxMap<ListingKey, Listing>({ keyPrefix: 'l' })
+    bytec_1 // "l"
+    swap
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:268
+    // assert(this.listings(listingKey).exists, 'Listing does not exist')
+    dup
+    box_len
+    bury 1
+    assert // Listing does not exist
+    // smart_contracts/nft_marketplace/contract.algo.ts:269
+    // return clone(this.listings(listingKey).value)
+    box_get
+    pop
+    // smart_contracts/nft_marketplace/contract.algo.ts:265-266
+    // @readonly
+    // getListing(seller: Account, assetId: uint64): Listing {
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.listingExists[routing]() -> void:
+listingExists:
+    // smart_contracts/nft_marketplace/contract.algo.ts:278-279
+    // @readonly
+    // listingExists(seller: Account, assetId: uint64): boolean {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/nft_marketplace/contract.algo.ts:280
+    // const listingKey: ListingKey = { seller: seller, assetId: assetId }
+    itob
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:52
+    // listings = BoxMap<ListingKey, Listing>({ keyPrefix: 'l' })
+    bytec_1 // "l"
+    swap
+    concat
+    // smart_contracts/nft_marketplace/contract.algo.ts:281
+    // return this.listings(listingKey).exists
+    box_len
+    bury 1
+    // smart_contracts/nft_marketplace/contract.algo.ts:278-279
+    // @readonly
+    // listingExists(seller: Account, assetId: uint64): boolean {
+    pushbytes 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.getCollectedCommission[routing]() -> void:
+getCollectedCommission:
+    // smart_contracts/nft_marketplace/contract.algo.ts:290
+    // return this.collectedCommission.value
+    intc_1 // 0
+    // smart_contracts/nft_marketplace/contract.algo.ts:49
+    // collectedCommission = GlobalState<uint64>({ initialValue: Uint64(0) })
+    bytec_0 // "collectedCommission"
+    // smart_contracts/nft_marketplace/contract.algo.ts:290
+    // return this.collectedCommission.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/nft_marketplace/contract.algo.ts:288-289
+    // @readonly
+    // getCollectedCommission(): uint64 {
+    itob
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/nft_marketplace/contract.algo.ts::NftMarketplace.getAdmin[routing]() -> void:
+getAdmin:
+    // smart_contracts/nft_marketplace/contract.algo.ts:299
+    // return this.admin.value
+    intc_1 // 0
+    // smart_contracts/nft_marketplace/contract.algo.ts:46
+    // admin = GlobalState<Account>()
+    bytec_2 // "admin"
+    // smart_contracts/nft_marketplace/contract.algo.ts:299
+    // return this.admin.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/nft_marketplace/contract.algo.ts:297-298
+    // @readonly
+    // getAdmin(): Account {
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return

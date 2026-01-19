@@ -1,0 +1,415 @@
+/* App Layout */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: #1a1a2e;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.app-header nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.app-header nav a {
+  color: #a0a0a0;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.app-header nav a:hover {
+  color: #fff;
+}
+
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.app-footer {
+  background: #1a1a2e;
+  padding: 1rem 2rem;
+  text-align: center;
+  color: #a0a0a0;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #646cff;
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #535bf2;
+}
+
+.btn-secondary {
+  background: #3a3a4a;
+  color: #fff;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #4a4a5a;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Wallet Connect */
+.wallet-connected {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wallet-address {
+  font-family: monospace;
+  background: #2a2a3a;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: #a0a0a0;
+}
+
+.wallet-options h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+}
+
+.wallet-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #3a3a4a;
+  border-radius: 8px;
+  background: #2a2a3a;
+  color: #fff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+/* Messages */
+.error {
+  background: #ff4444;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.success {
+  background: #44aa44;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* NFT Grid */
+.nft-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.nft-card {
+  background: #2a2a3a;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.nft-card:hover {
+  transform: translateY(-4px);
+}
+
+.nft-image {
+  aspect-ratio: 1;
+  background: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nft-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.nft-info {
+  padding: 1rem;
+}
+
+.nft-info h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.unit-name {
+  display: inline-block;
+  background: #646cff;
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.asset-id {
+  color: #a0a0a0;
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+}
+
+/* Gallery Header */
+.gallery-header,
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* Home Page */
+.home {
+  text-align: center;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.feature {
+  background: #2a2a3a;
+  padding: 2rem;
+  border-radius: 12px;
+}
+
+.feature h3 {
+  margin: 0 0 0.5rem;
+}
+
+.feature p {
+  color: #a0a0a0;
+  margin: 0 0 1rem;
+}
+
+.info-box {
+  background: #2a2a3a;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: left;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.info-box h3 {
+  margin: 0 0 1rem;
+}
+
+.info-box ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.info-box li {
+  margin-bottom: 0.5rem;
+  color: #a0a0a0;
+}
+
+/* Listing Form */
+.listing-form,
+.create-nft {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.selected-nft {
+  background: #2a2a3a;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.selected-nft h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.price-breakdown {
+  background: #2a2a3a;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.price-row.total {
+  border-top: 1px solid #3a3a4a;
+  padding-top: 0.5rem;
+  font-weight: bold;
+}
+
+.seller-receives {
+  margin-top: 0.5rem;
+  color: #44aa44;
+}
+
+/* Purchase Flow */
+.purchase-flow {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.nft-details {
+  background: #2a2a3a;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.seller {
+  color: #a0a0a0;
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* My NFTs */
+.my-nfts {
+  text-align: left;
+}
+
+.balance {
+  color: #44aa44;
+  font-size: 0.875rem;
+}
+
+/* Marketplace Browse */
+.marketplace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.marketplace-header h2 {
+  margin: 0;
+}
+
+.listing-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.listing-card .nft-info {
+  flex: 1;
+}
+
+.listing-card .price {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #646cff;
+  margin: 0.5rem 0;
+}
+
+.listing-card .btn {
+  margin: 1rem;
+  margin-top: 0;
+}
+
+.connect-prompt {
+  color: #a0a0a0;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 1rem;
+  margin: 0;
+}
+
+.quick-links {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
