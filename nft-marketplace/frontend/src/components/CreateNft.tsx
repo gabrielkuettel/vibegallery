@@ -1,14 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNft } from '../hooks/useNft'
+
+// Generate a random seed for robohash
+const generateSeed = () => Math.random().toString(36).substring(2, 15)
 
 export function CreateNft() {
   const { createNft, isConnected } = useNft()
   const [name, setName] = useState('')
-  const [unitName, setUnitName] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [seed, setSeed] = useState(generateSeed)
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<{ assetId: bigint; txId: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const imageUrl = `https://robohash.org/${seed}.png?size=400x400`
+
+  const handleNewRobot = () => {
+    setSeed(generateSeed())
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,13 +33,12 @@ export function CreateNft() {
     try {
       const nft = await createNft({
         name,
-        unitName: unitName.toUpperCase().slice(0, 8),
+        unitName: 'VIBE',
         imageUrl,
       })
       setResult(nft)
       setName('')
-      setUnitName('')
-      setImageUrl('')
+      setSeed(generateSeed())
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to create NFT')
     } finally {
@@ -43,46 +50,28 @@ export function CreateNft() {
     <div className="create-nft">
       <h2>Create NFT</h2>
       <form onSubmit={handleSubmit}>
+        <div className="robot-preview">
+          <img src={imageUrl} alt="Your robot" />
+          <button type="button" className="btn btn-secondary" onClick={handleNewRobot}>
+            New Robot
+          </button>
+        </div>
+
         <div className="form-group">
-          <label htmlFor="name">NFT Name</label>
+          <label htmlFor="name">Name Your Robot</label>
           <input
             id="name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="My Awesome NFT"
+            placeholder="Cosmic Crusher"
             required
             maxLength={32}
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="unitName">Unit Name (Ticker)</label>
-          <input
-            id="unitName"
-            type="text"
-            value={unitName}
-            onChange={(e) => setUnitName(e.target.value.toUpperCase())}
-            placeholder="MNFT"
-            required
-            maxLength={8}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="imageUrl">Image URL (optional)</label>
-          <input
-            id="imageUrl"
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://robohash.org/my-nft.png?size=400x400"
-          />
-          <small className="form-hint">Tip: Use robohash.org for unique robot avatars</small>
-        </div>
-
         <button type="submit" className="btn btn-primary" disabled={isLoading || !isConnected}>
-          {isLoading ? 'Creating...' : 'Create NFT'}
+          {isLoading ? 'Minting...' : 'Mint Robot'}
         </button>
       </form>
 
@@ -90,9 +79,8 @@ export function CreateNft() {
 
       {result && (
         <div className="success">
-          <p>NFT Created Successfully!</p>
+          <p>Robot Minted!</p>
           <p>Asset ID: {result.assetId.toString()}</p>
-          <p>Transaction: {result.txId.slice(0, 12)}...</p>
         </div>
       )}
     </div>

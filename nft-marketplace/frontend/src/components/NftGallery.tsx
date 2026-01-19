@@ -19,7 +19,9 @@ export function NftGallery({ onSelect }: NftGalleryProps) {
 
     try {
       const owned = await getOwnedNfts()
-      setNfts(owned)
+      // Only show VIBE NFTs (minted through this app)
+      const vibeNfts = owned.filter(nft => nft.unitName === 'VIBE')
+      setNfts(vibeNfts)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load NFTs')
     } finally {
