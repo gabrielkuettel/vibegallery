@@ -1,52 +1,10 @@
 import { NetworkId, WalletId, WalletManager } from '@txnlab/use-wallet-react'
 
-// Network configuration - hardcoded for production (Vercel env vars broken with subdirectories)
-const NETWORK: string = 'testnet'
-
-// Map network string to NetworkId
-const getNetworkId = (network: string): NetworkId => {
-  switch (network) {
-    case 'testnet':
-      return NetworkId.TESTNET
-    case 'mainnet':
-      return NetworkId.MAINNET
-    default:
-      return NetworkId.LOCALNET
-  }
-}
-
-// Network configurations
-const networkConfigs = {
-  localnet: {
-    [NetworkId.LOCALNET]: {
-      algod: {
-        token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        baseServer: 'http://localhost',
-        port: 4001,
-      },
-    },
-  },
-  testnet: {
-    [NetworkId.TESTNET]: {
-      algod: {
-        token: '',
-        baseServer: 'https://testnet-api.4160.nodely.dev',
-        port: 443,
-      },
-    },
-  },
-  mainnet: {
-    [NetworkId.MAINNET]: {
-      algod: {
-        token: '',
-        baseServer: 'https://mainnet-api.4160.nodely.dev',
-        port: 443,
-      },
-    },
-  },
-}
+// Network configuration - hardcoded for production
+const NETWORK: 'localnet' | 'testnet' | 'mainnet' = 'testnet'
 
 // Wallet configuration for the NFT Marketplace
+// use-wallet has built-in Nodely configs for testnet/mainnet - no need to specify algod
 export const walletManager = new WalletManager({
   wallets: NETWORK === 'localnet'
     ? [
@@ -60,9 +18,19 @@ export const walletManager = new WalletManager({
         } as const,
       ]
     : [WalletId.PERA, WalletId.LUTE],
-  defaultNetwork: getNetworkId(NETWORK),
-  // Only include the current network config to prevent fallback to localnet
-  networks: networkConfigs[NETWORK as keyof typeof networkConfigs] || networkConfigs.testnet,
+  defaultNetwork: NetworkId.TESTNET,
+  // Only specify custom config for localnet; testnet/mainnet use built-in Nodely defaults
+  ...(NETWORK === 'localnet' && {
+    networks: {
+      [NetworkId.LOCALNET]: {
+        algod: {
+          token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          baseServer: 'http://localhost',
+          port: 4001,
+        },
+      },
+    },
+  }),
 })
 
 // Deployed app ID - hardcoded for production (Vercel env vars broken with subdirectories)
