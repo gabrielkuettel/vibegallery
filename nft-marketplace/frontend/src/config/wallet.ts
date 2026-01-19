@@ -15,6 +15,37 @@ const getNetworkId = (network: string): NetworkId => {
   }
 }
 
+// Network configurations
+const networkConfigs = {
+  localnet: {
+    [NetworkId.LOCALNET]: {
+      algod: {
+        token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        baseServer: 'http://localhost',
+        port: 4001,
+      },
+    },
+  },
+  testnet: {
+    [NetworkId.TESTNET]: {
+      algod: {
+        token: '',
+        baseServer: 'https://testnet-api.4160.nodely.dev',
+        port: 443,
+      },
+    },
+  },
+  mainnet: {
+    [NetworkId.MAINNET]: {
+      algod: {
+        token: '',
+        baseServer: 'https://mainnet-api.4160.nodely.dev',
+        port: 443,
+      },
+    },
+  },
+}
+
 // Wallet configuration for the NFT Marketplace
 export const walletManager = new WalletManager({
   wallets: NETWORK === 'localnet'
@@ -30,29 +61,8 @@ export const walletManager = new WalletManager({
       ]
     : [WalletId.PERA, WalletId.LUTE],
   defaultNetwork: getNetworkId(NETWORK),
-  networks: {
-    [NetworkId.LOCALNET]: {
-      algod: {
-        token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        baseServer: 'http://localhost',
-        port: 4001,
-      },
-    },
-    [NetworkId.TESTNET]: {
-      algod: {
-        token: '',
-        baseServer: 'https://testnet-api.4160.nodely.dev',
-        port: 443,
-      },
-    },
-    [NetworkId.MAINNET]: {
-      algod: {
-        token: '',
-        baseServer: 'https://mainnet-api.4160.nodely.dev',
-        port: 443,
-      },
-    },
-  },
+  // Only include the current network config to prevent fallback to localnet
+  networks: networkConfigs[NETWORK as keyof typeof networkConfigs] || networkConfigs.testnet,
 })
 
 // Deployed app ID - hardcoded for production (Vercel env vars broken with subdirectories)
