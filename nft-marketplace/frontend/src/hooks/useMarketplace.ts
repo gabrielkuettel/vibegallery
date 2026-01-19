@@ -112,33 +112,41 @@ export function useMarketplace() {
       throw new Error('Wallet not connected or app not configured')
     }
 
-    // First opt the buyer into the asset if not already
-    try {
-      await algorand.send.assetOptIn({
-        sender: activeAddress,
-        assetId: assetId,
-      })
-    } catch (e) {
-      // May already be opted in
-    }
+    // Check if buyer needs to opt in to the asset
+    const accountInfo = await algorand.account.getInformation(activeAddress)
+    const isOptedIn = accountInfo.assets?.some(a => BigInt(a.assetId) === assetId) ?? false
 
-    // Create payment for the purchase
+    // Create payment transaction for the purchase
     const payment = await algorand.createTransaction.payment({
       sender: activeAddress,
       receiver: marketplaceClient.appAddress,
       amount: AlgoAmount.MicroAlgo(price),
     })
 
-    // Buy the NFT
-    const result = await marketplaceClient.send.buyNft({
-      args: {
-        payment: payment,
-        seller: seller,
-        asset: assetId,
-      },
-      extraFee: AlgoAmount.MicroAlgo(4000n), // Cover inner transaction fees
-      populateAppCallResources: true,
-    })
+    // Build atomic group for single signature
+    let group = algorand.newGroup()
+
+    // Add asset opt-in if needed
+    if (!isOptedIn) {
+      group = group.addAssetOptIn({
+        sender: activeAddress,
+        assetId: assetId,
+      })
+    }
+
+    // Add payment + buyNft app call as atomic group
+    const result = await group
+      .addAppCallMethodCall(
+        await marketplaceClient.params.buyNft({
+          args: {
+            payment: payment,
+            seller: seller,
+            asset: assetId,
+          },
+          extraFee: AlgoAmount.MicroAlgo(4000n),
+        })
+      )
+      .send({ populateAppCallResources: true })
 
     return result
   }, [marketplaceClient, algorand, activeAddress])
