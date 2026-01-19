@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 import { WalletConnect } from './components/WalletConnect'
 import { CreateNft } from './components/CreateNft'
-import { NftGallery } from './components/NftGallery'
-import { ListingForm } from './components/ListingForm'
 import { MyNfts } from './components/MyNfts'
 import { PurchaseFlow } from './components/PurchaseFlow'
 import { useMarketplace, ActiveListing } from './hooks/useMarketplace'
@@ -37,7 +35,6 @@ function App() {
         <nav>
           <Link to="/">Browse</Link>
           <Link to="/create">Create</Link>
-          <Link to="/list">Sell</Link>
           <Link to="/my-nfts">My NFTs</Link>
         </nav>
         <WalletConnect />
@@ -47,7 +44,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/create" element={<CreateNft />} />
-          <Route path="/list" element={<ListingForm />} />
           <Route path="/my-nfts" element={<MyNfts />} />
         </Routes>
       </main>
@@ -184,7 +180,6 @@ function Home() {
 
       <div className="quick-links">
         <Link to="/create" className="btn btn-secondary">Create NFT</Link>
-        <Link to="/list" className="btn btn-secondary">List NFT</Link>
         <Link to="/my-nfts" className="btn btn-secondary">My NFTs</Link>
       </div>
     </div>
