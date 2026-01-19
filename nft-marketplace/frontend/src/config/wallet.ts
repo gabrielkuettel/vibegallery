@@ -1,7 +1,8 @@
 import { NetworkId, WalletId, WalletManager } from '@txnlab/use-wallet-react'
 
 // Network configuration - hardcoded for production
-const NETWORK: 'localnet' | 'testnet' | 'mainnet' = 'testnet'
+type NetworkType = 'localnet' | 'testnet' | 'mainnet'
+const NETWORK = 'testnet' as NetworkType
 
 // Wallet configuration for the NFT Marketplace
 // use-wallet has built-in Nodely configs for testnet/mainnet - no need to specify algod
