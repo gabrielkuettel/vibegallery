@@ -4,13 +4,16 @@ import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { NftMarketplaceClient } from '../contracts/NftMarketplaceClient'
 import { APP_ID } from '../config/wallet'
-import algosdk from 'algosdk'
+import algosdk, { getApplicationAddress } from 'algosdk'
 
 // Box MBR for listings (must match contract constant)
 const BOX_MBR = 35300n
 
-// Marketplace app address (derived from APP_ID 1592)
-const APP_ADDRESS = 'XPNRO3XKLQGBW2PQY6CMAZ5MQX4TK2YJT2O3GMJ4PABHO2NHYVDVSGXIPA'
+// Box prefix for listings (from contract: "l")
+const LISTING_BOX_PREFIX = new Uint8Array([108]) // "l" in ASCII
+
+// Derive app address from APP_ID
+const APP_ADDRESS = APP_ID !== 0n ? getApplicationAddress(APP_ID) : ''
 
 // Listing type for the frontend
 export interface ActiveListing {
@@ -198,7 +201,7 @@ export function useMarketplace() {
     return result.return
   }, [marketplaceClient])
 
-  // Get all active listings by checking the app's assets and finding sellers via indexer
+  // Get all active listings by reading box storage directly (no indexer needed)
   const getActiveListings = useCallback(async (): Promise<ActiveListing[]> => {
     if (!algodClient) {
       throw new Error('Algod client not available')
@@ -207,97 +210,84 @@ export function useMarketplace() {
     const listings: ActiveListing[] = []
 
     try {
-      // Get the marketplace app's account info to find assets it holds
-      const appInfo = await algodClient.accountInformation(APP_ADDRESS).do()
-      const assets = appInfo.assets || []
+      // Get all boxes for the app
+      const boxesResponse = await algodClient.getApplicationBoxes(Number(APP_ID)).do()
+      const boxes = boxesResponse.boxes || []
 
-      if (assets.length === 0) {
+      if (boxes.length === 0) {
         return []
       }
 
-      // Create a readonly AlgorandClient (no signer needed for reading)
-      const readonlyClient = AlgorandClient.fromClients({ algod: algodClient })
-      const readonlyMarketplace = readonlyClient.client.getTypedAppClientById(NftMarketplaceClient, {
-        appId: APP_ID,
-        // Use the app address as a dummy sender for readonly calls
-        defaultSender: APP_ADDRESS,
-      })
-
-      // Create indexer client for localnet
-      const indexer = new algosdk.Indexer('', 'http://localhost', 8980)
-
-      // For each asset the app holds, find who sent it (the seller)
-      for (const asset of assets) {
-        // Handle both camelCase and kebab-case property names (SDK version differences)
-        const rawAssetId = asset.assetId ?? asset['asset-id'] ?? asset.assetID
-        const rawAmount = asset.amount ?? 0
-
-        if (rawAssetId === undefined) {
-          continue
-        }
-
-        const assetId = BigInt(rawAssetId)
-        const amount = BigInt(rawAmount)
-
-        // Only consider assets where app holds exactly 1 (listed NFTs)
-        if (amount !== 1n) continue
-
+      // Process each box
+      for (const box of boxes) {
         try {
-          // Search for asset transfer transactions TO the app for this asset
-          const txns = await indexer
-            .searchForTransactions()
-            .assetID(Number(assetId))
-            .txType('axfer')
-            .address(APP_ADDRESS)
-            .addressRole('receiver')
-            .do()
-
-          // Find the most recent transfer that sent 1 unit to the app (the listing)
-          for (const txn of txns.transactions || []) {
-            // Handle both camelCase and kebab-case (SDK version differences)
-            const xfer = txn.assetTransferTransaction ?? txn['asset-transfer-transaction']
-
-            // Compare amount as numbers since it might be number or bigint
-            const xferAmount = Number(xfer?.amount ?? 0)
-            if (xfer && xferAmount === 1 && xfer.receiver === APP_ADDRESS) {
-              const seller = txn.sender
-
-              try {
-                // Use readonly client to get listing details via simulation
-                const listingResult = await readonlyMarketplace.newGroup().getListing({
-                  args: { seller: seller, assetId: assetId },
-                }).simulate({
-                  allowUnnamedResources: true,
-                  skipSignatures: true,
-                  fixSigners: true,
-                })
-
-                const returnValue = listingResult.returns?.[0]
-                if (returnValue) {
-                  // Get asset info
-                  const assetInfo = await algodClient.getAssetByID(Number(assetId)).do()
-                  const params = assetInfo.params ?? assetInfo
-
-                  listings.push({
-                    seller: seller,
-                    assetId: assetId,
-                    price: BigInt(returnValue.price),
-                    assetInfo: {
-                      name: params.name,
-                      unitName: params.unitName ?? params['unit-name'],
-                      url: params.url,
-                    },
-                  })
-                  break // Found the listing for this asset
-                }
-              } catch (e) {
-                // Listing may not exist anymore, skip
-                console.error('getListing failed:', e)
-              }
+          // Box name might be base64 string or Uint8Array depending on SDK version
+          let boxName: Uint8Array
+          if (typeof box.name === 'string') {
+            // Browser-compatible base64 decoding
+            const binaryString = atob(box.name)
+            boxName = new Uint8Array(binaryString.length)
+            for (let i = 0; i < binaryString.length; i++) {
+              boxName[i] = binaryString.charCodeAt(i)
             }
+          } else {
+            boxName = box.name
           }
+
+          // Box name is: prefix (1 byte "l") + seller (32 bytes) + assetId (8 bytes)
+          if (boxName.length !== 41) continue // 1 + 32 + 8
+
+          // Check prefix
+          if (boxName[0] !== LISTING_BOX_PREFIX[0]) continue
+
+          // Extract seller address (bytes 1-32)
+          const sellerBytes = boxName.slice(1, 33)
+          const seller = algosdk.encodeAddress(sellerBytes)
+
+          // Extract asset ID (bytes 33-40, big-endian uint64)
+          const assetIdBytes = boxName.slice(33, 41)
+          const assetId = new DataView(assetIdBytes.buffer, assetIdBytes.byteOffset, 8).getBigUint64(0)
+
+          // Read the box value to get listing details
+          const boxValue = await algodClient.getApplicationBoxByName(Number(APP_ID), boxName).do()
+
+          // Value might also be base64 string or Uint8Array
+          let value: Uint8Array
+          if (typeof boxValue.value === 'string') {
+            const binaryString = atob(boxValue.value)
+            value = new Uint8Array(binaryString.length)
+            for (let i = 0; i < binaryString.length; i++) {
+              value[i] = binaryString.charCodeAt(i)
+            }
+          } else {
+            value = boxValue.value
+          }
+
+          // Parse listing struct: seller (32 bytes) + price (8 bytes) + isActive (1 byte)
+          // Note: seller is redundant in value since it's in the key
+          const priceBytes = value.slice(32, 40)
+          const price = new DataView(priceBytes.buffer, priceBytes.byteOffset, 8).getBigUint64(0)
+          // AVM booleans: 0 = false, any non-zero = true (often 0x80)
+          const isActive = value[40] !== 0
+
+          if (!isActive) continue
+
+          // Get asset info
+          const assetInfo = await algodClient.getAssetByID(Number(assetId)).do()
+          const params = assetInfo.params ?? assetInfo
+
+          listings.push({
+            seller,
+            assetId,
+            price,
+            assetInfo: {
+              name: params.name,
+              unitName: params.unitName,
+              url: params.url,
+            },
+          })
         } catch (e) {
-          console.error(`Failed to fetch transactions for asset ${assetId}:`, e)
+          console.error('Failed to process box:', e)
         }
       }
     } catch (e) {

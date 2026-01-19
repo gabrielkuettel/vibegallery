@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { WalletConnect } from './components/WalletConnect'
 import { CreateNft } from './components/CreateNft'
 import { NftGallery } from './components/NftGallery'
@@ -7,13 +8,36 @@ import { ListingForm } from './components/ListingForm'
 import { MyNfts } from './components/MyNfts'
 import { PurchaseFlow } from './components/PurchaseFlow'
 import { useMarketplace, ActiveListing } from './hooks/useMarketplace'
+import { CURRENT_NETWORK } from './config/wallet'
 import './App.css'
+
+function NetworkBanner() {
+  if (CURRENT_NETWORK === 'mainnet') return null
+
+  return (
+    <div className="network-banner">
+      {CURRENT_NETWORK === 'testnet' ? 'Testnet' : 'LocalNet'} — This is not real money
+    </div>
+  )
+}
+
+function Logo() {
+  return (
+    <pre className="ascii-logo">{`██╗   ██╗██╗██████╗ ███████╗ ██████╗  █████╗ ██╗     ██╗     ███████╗██████╗ ██╗   ██╗
+██║   ██║██║██╔══██╗██╔════╝██╔════╝ ██╔══██╗██║     ██║     ██╔════╝██╔══██╗╚██╗ ██╔╝
+██║   ██║██║██████╔╝█████╗  ██║  ███╗███████║██║     ██║     █████╗  ██████╔╝ ╚████╔╝
+╚██╗ ██╔╝██║██╔══██╗██╔══╝  ██║   ██║██╔══██║██║     ██║     ██╔══╝  ██╔══██╗  ╚██╔╝
+ ╚████╔╝ ██║██████╔╝███████╗╚██████╔╝██║  ██║███████╗███████╗███████╗██║  ██║   ██║
+  ╚═══╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝   ╚═╝`}</pre>
+  )
+}
 
 function App() {
   return (
     <div className="app">
+      <NetworkBanner />
       <header className="app-header">
-        <h1>NFT Marketplace</h1>
+        <Logo />
         <nav>
           <Link to="/">Browse</Link>
           <Link to="/create">Create</Link>
@@ -33,7 +57,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>NFT Marketplace on Algorand</p>
+        <p>VibeGallery on Algorand</p>
       </footer>
     </div>
   )
@@ -41,13 +65,14 @@ function App() {
 
 function Home() {
   const { getActiveListings, isConnected, isConfigured } = useMarketplace()
+  const { algodClient } = useWallet()
   const [listings, setListings] = useState<ActiveListing[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedListing, setSelectedListing] = useState<ActiveListing | null>(null)
 
   const loadListings = async () => {
-    if (!isConfigured) return
+    if (!isConfigured || !algodClient) return
 
     setIsLoading(true)
     setError(null)
@@ -56,6 +81,7 @@ function Home() {
       const activeListings = await getActiveListings()
       setListings(activeListings)
     } catch (e) {
+      console.error('Failed to load listings:', e)
       setError(e instanceof Error ? e.message : 'Failed to load listings')
     } finally {
       setIsLoading(false)
@@ -63,8 +89,9 @@ function Home() {
   }
 
   useEffect(() => {
+    console.log('[Home] useEffect triggered', { isConfigured, hasAlgodClient: !!algodClient })
     loadListings()
-  }, [isConfigured])
+  }, [isConfigured, algodClient])
 
   const formatPrice = (microAlgo: bigint) => {
     return (Number(microAlgo) / 1_000_000).toFixed(3)
@@ -98,7 +125,7 @@ function Home() {
   return (
     <div className="home">
       <div className="marketplace-header">
-        <h2>NFT Marketplace</h2>
+        <h2>VibeGallery</h2>
         <button onClick={loadListings} className="btn btn-secondary" disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Refresh'}
         </button>

@@ -19,11 +19,11 @@ export async function deploy() {
   // If app was just created fund the app account for inner transactions
   if (['create', 'replace'].includes(result.operationPerformed)) {
     await algorand.send.payment({
-      amount: (1).algo(),
+      amount: (3).algo(),
       sender: deployer.addr,
       receiver: appClient.appAddress,
     })
-    console.log(`Funded app account with 1 ALGO`)
+    console.log(`Funded app account with 3 ALGO`)
   }
 
   console.log(`Deployed NftMarketplace with App ID: ${appClient.appClient.appId}`)
