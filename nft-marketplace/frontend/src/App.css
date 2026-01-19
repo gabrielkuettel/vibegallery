@@ -303,6 +303,13 @@ body::before {
   color: var(--text-muted);
 }
 
+.form-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 /* Messages */
 .error {
   background: rgba(239, 68, 68, 0.1);

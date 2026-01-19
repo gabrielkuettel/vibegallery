@@ -76,8 +76,9 @@ export function CreateNft() {
             type="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://example.com/image.png"
+            placeholder="https://robohash.org/my-nft.png?size=400x400"
           />
+          <small className="form-hint">Tip: Use robohash.org for unique robot avatars</small>
         </div>
 
         <button type="submit" className="btn btn-primary" disabled={isLoading || !isConnected}>
