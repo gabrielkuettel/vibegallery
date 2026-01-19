@@ -1,11 +1,35 @@
-import { NetworkId, WalletId, WalletManager } from '@txnlab/use-wallet-react'
+import { NetworkConfigBuilder, NetworkId, WalletId, WalletManager } from '@txnlab/use-wallet-react'
 
 // Network configuration - hardcoded for production
 type NetworkType = 'localnet' | 'testnet' | 'mainnet'
 const NETWORK = 'testnet' as NetworkType
 
+// Build network config explicitly - don't rely on "defaults" that don't work
+const networks = new NetworkConfigBuilder()
+  .localnet({
+    algod: {
+      baseServer: 'http://localhost',
+      port: '4001',
+      token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    },
+  })
+  .testnet({
+    algod: {
+      baseServer: 'https://testnet-api.4160.nodely.dev',
+      port: '443',
+      token: '',
+    },
+  })
+  .mainnet({
+    algod: {
+      baseServer: 'https://mainnet-api.4160.nodely.dev',
+      port: '443',
+      token: '',
+    },
+  })
+  .build()
+
 // Wallet configuration for the NFT Marketplace
-// use-wallet has built-in Nodely configs for testnet/mainnet - no need to specify algod
 export const walletManager = new WalletManager({
   wallets: NETWORK === 'localnet'
     ? [
@@ -19,19 +43,10 @@ export const walletManager = new WalletManager({
         } as const,
       ]
     : [WalletId.PERA, WalletId.LUTE],
-  defaultNetwork: NetworkId.TESTNET,
-  // Only specify custom config for localnet; testnet/mainnet use built-in Nodely defaults
-  ...(NETWORK === 'localnet' && {
-    networks: {
-      [NetworkId.LOCALNET]: {
-        algod: {
-          token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          baseServer: 'http://localhost',
-          port: 4001,
-        },
-      },
-    },
-  }),
+  networks,
+  defaultNetwork: NETWORK === 'testnet' ? NetworkId.TESTNET
+                : NETWORK === 'mainnet' ? NetworkId.MAINNET
+                : NetworkId.LOCALNET,
 })
 
 // Deployed app ID - hardcoded for production (Vercel env vars broken with subdirectories)
