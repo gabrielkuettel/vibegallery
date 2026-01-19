@@ -3,8 +3,8 @@ import { useWallet } from '@txnlab/use-wallet-react'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { NftMarketplaceClient } from '../contracts/NftMarketplaceClient'
-import { APP_ID } from '../config/wallet'
-import algosdk, { getApplicationAddress } from 'algosdk'
+import { APP_ID, CURRENT_NETWORK } from '../config/wallet'
+import algosdk, { Algodv2, getApplicationAddress } from 'algosdk'
 
 // Box MBR for listings (must match contract constant)
 const BOX_MBR = 35300n
@@ -14,6 +14,17 @@ const LISTING_BOX_PREFIX = new Uint8Array([108]) // "l" in ASCII
 
 // Derive app address from APP_ID
 const APP_ADDRESS = APP_ID !== 0n ? getApplicationAddress(APP_ID) : ''
+
+// Create a hardcoded testnet algod client for read operations (bypasses use-wallet issues)
+const getReadOnlyAlgodClient = (): Algodv2 => {
+  if (CURRENT_NETWORK === 'testnet') {
+    return new Algodv2('', 'https://testnet-api.4160.nodely.dev', 443)
+  } else if (CURRENT_NETWORK === 'mainnet') {
+    return new Algodv2('', 'https://mainnet-api.4160.nodely.dev', 443)
+  }
+  // localnet fallback
+  return new Algodv2('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'http://localhost', 4001)
+}
 
 // Listing type for the frontend
 export interface ActiveListing {
@@ -203,15 +214,14 @@ export function useMarketplace() {
 
   // Get all active listings by reading box storage directly (no indexer needed)
   const getActiveListings = useCallback(async (): Promise<ActiveListing[]> => {
-    if (!algodClient) {
-      throw new Error('Algod client not available')
-    }
+    // Use hardcoded read-only client to avoid use-wallet network issues
+    const readClient = getReadOnlyAlgodClient()
 
     const listings: ActiveListing[] = []
 
     try {
       // Get all boxes for the app
-      const boxesResponse = await algodClient.getApplicationBoxes(Number(APP_ID)).do()
+      const boxesResponse = await readClient.getApplicationBoxes(Number(APP_ID)).do()
       const boxes = boxesResponse.boxes || []
 
       if (boxes.length === 0) {
@@ -249,7 +259,7 @@ export function useMarketplace() {
           const assetId = new DataView(assetIdBytes.buffer, assetIdBytes.byteOffset, 8).getBigUint64(0)
 
           // Read the box value to get listing details
-          const boxValue = await algodClient.getApplicationBoxByName(Number(APP_ID), boxName).do()
+          const boxValue = await readClient.getApplicationBoxByName(Number(APP_ID), boxName).do()
 
           // Value might also be base64 string or Uint8Array
           let value: Uint8Array
@@ -273,7 +283,7 @@ export function useMarketplace() {
           if (!isActive) continue
 
           // Get asset info
-          const assetInfo = await algodClient.getAssetByID(Number(assetId)).do()
+          const assetInfo = await readClient.getAssetByID(Number(assetId)).do()
           const params = assetInfo.params ?? assetInfo
 
           listings.push({
@@ -296,7 +306,7 @@ export function useMarketplace() {
     }
 
     return listings
-  }, [algodClient])
+  }, []) // No dependencies - uses hardcoded read-only client
 
   return {
     isConnected: !!activeAddress,
