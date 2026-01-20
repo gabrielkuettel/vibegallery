@@ -49,7 +49,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>Robohash on Algorand</p>
+        <p>Powered by <a href="https://robohash.org" target="_blank" rel="noopener noreferrer">Robohash</a> on Algorand</p>
       </footer>
     </div>
   )

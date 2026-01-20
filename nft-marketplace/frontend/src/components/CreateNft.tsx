@@ -33,7 +33,7 @@ export function CreateNft() {
     try {
       const nft = await createNft({
         name,
-        unitName: 'VIBE',
+        unitName: 'ROBO',
         imageUrl,
       })
       setResult(nft)
