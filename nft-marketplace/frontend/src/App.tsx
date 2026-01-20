@@ -33,25 +33,31 @@ function App() {
     <div className="app">
       <NetworkBanner />
       <header className="app-header">
-        <Link to="/" className="logo-link">
-          <Logo />
-        </Link>
-        <nav className={mobileNavOpen ? 'nav-open' : ''}>
-          <Link to="/" onClick={() => setMobileNavOpen(false)}>Browse</Link>
-          <Link to="/create" onClick={() => setMobileNavOpen(false)}>Create</Link>
-          <Link to="/my-nfts" onClick={() => setMobileNavOpen(false)}>My NFTs</Link>
-        </nav>
-        <div className="header-right">
-          <WalletConnect />
-          <button
-            className="hamburger-btn"
-            onClick={() => setMobileNavOpen(!mobileNavOpen)}
-            aria-label="Toggle navigation"
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
+        <div className="header-inner">
+          <Link to="/" className="logo-link">
+            <Logo />
+          </Link>
+          <nav className={mobileNavOpen ? 'nav-open' : ''}>
+            <Link to="/" onClick={() => setMobileNavOpen(false)}>Browse</Link>
+            <Link to="/create" onClick={() => setMobileNavOpen(false)}>Create</Link>
+            <Link to="/my-nfts" onClick={() => setMobileNavOpen(false)}>My NFTs</Link>
+            <hr className="nav-divider" />
+            <div className="nav-wallet">
+              <WalletConnect />
+            </div>
+          </nav>
+          <div className="header-right">
+            <WalletConnect />
+            <button
+              className="hamburger-btn"
+              onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              aria-label="Toggle navigation"
+            >
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+            </button>
+          </div>
         </div>
       </header>
 

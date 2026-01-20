@@ -82,14 +82,20 @@ body::before {
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
   flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .app-header h1 {
@@ -130,14 +136,14 @@ body::before {
   }
 }
 
-.app-header nav {
+.header-inner nav {
   display: flex;
   gap: 0.5rem;
   flex: 1;
   justify-content: center;
 }
 
-.app-header nav a {
+.header-inner nav a {
   color: var(--text-secondary);
   text-decoration: none;
   padding: 0.5rem 1rem;
@@ -148,14 +154,23 @@ body::before {
   position: relative;
 }
 
-.app-header nav a:hover {
+.header-inner nav a:hover {
   color: var(--text-primary);
   background: var(--bg-card-hover);
 }
 
-.app-header nav a.active {
+.header-inner nav a.active {
   color: var(--accent-primary);
   background: rgba(245, 158, 11, 0.1);
+}
+
+/* Nav divider and wallet (hidden on desktop, shown on mobile) */
+.nav-divider {
+  display: none;
+}
+
+.nav-wallet {
+  display: none;
 }
 
 /* Main Content */
@@ -984,6 +999,9 @@ body::before {
 @media (max-width: 768px) {
   .app-header {
     padding: 1rem;
+  }
+
+  .header-inner {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 0.75rem;
@@ -998,11 +1016,17 @@ body::before {
     flex-shrink: 0;
   }
 
+  /* Hide wallet in header-right on mobile */
+  .header-right .wallet-connect,
+  .header-right .wallet-connected {
+    display: none;
+  }
+
   .hamburger-btn {
     display: flex;
   }
 
-  .app-header nav {
+  .header-inner nav {
     display: none;
     width: 100%;
     flex: none;
@@ -1015,18 +1039,31 @@ body::before {
     order: 3;
   }
 
-  .app-header nav.nav-open {
+  .header-inner nav.nav-open {
     display: flex;
   }
 
-  .app-header nav a {
+  .header-inner nav a {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
     border-radius: var(--radius-sm);
   }
 
-  .app-header nav a:hover {
+  .header-inner nav a:hover {
     background: var(--bg-card-hover);
+  }
+
+  /* Show nav-divider and nav-wallet on mobile */
+  .nav-divider {
+    display: block;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 0.5rem 0;
+  }
+
+  .nav-wallet {
+    display: block;
+    padding: 0.5rem;
   }
 
   .app-main {
