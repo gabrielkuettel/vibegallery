@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import { useNft } from '../hooks/useNft'
 
+const MAX_NAME_BYTES = 32
+const getByteLength = (str: string) => new TextEncoder().encode(str).length
+
 export function CreateNft() {
   const { createNft, isConnected } = useNft()
   const [name, setName] = useState('')
+  const nameByteLength = getByteLength(name)
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<{ assetId: bigint; txId: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -50,11 +54,16 @@ export function CreateNft() {
             id="name"
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value
+              if (getByteLength(newValue) <= MAX_NAME_BYTES) {
+                setName(newValue)
+              }
+            }}
             placeholder="Cosmic Crusher"
             required
-            maxLength={32}
           />
+          <span className="form-hint">{MAX_NAME_BYTES - nameByteLength} bytes remaining</span>
         </div>
 
         <div className="robot-preview">
