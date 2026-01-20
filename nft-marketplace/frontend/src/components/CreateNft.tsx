@@ -1,21 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { useNft } from '../hooks/useNft'
 
-// Generate a random seed for robohash
-const generateSeed = () => Math.random().toString(36).substring(2, 15)
+// Generate a random suffix for robohash variants
+const generateSuffix = () => Math.random().toString(36).substring(2, 8)
 
 export function CreateNft() {
+  const { activeAddress } = useWallet()
   const { createNft, isConnected } = useNft()
   const [name, setName] = useState('')
-  const [seed, setSeed] = useState(generateSeed)
+  const [suffix, setSuffix] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<{ assetId: bigint; txId: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Use wallet address as base seed, with optional suffix for variants
+  const seed = activeAddress ? `${activeAddress}${suffix}` : generateSuffix()
   const imageUrl = `https://robohash.org/${seed}.png?size=400x400`
 
   const handleNewRobot = () => {
-    setSeed(generateSeed())
+    setSuffix(generateSuffix())
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +42,7 @@ export function CreateNft() {
       })
       setResult(nft)
       setName('')
-      setSeed(generateSeed())
+      setSuffix('')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to create NFT')
     } finally {
