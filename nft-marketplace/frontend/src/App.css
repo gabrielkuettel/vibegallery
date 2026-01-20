@@ -139,8 +139,6 @@ body::before {
 .header-inner nav {
   display: flex;
   gap: 0.5rem;
-  flex: 1;
-  justify-content: center;
 }
 
 .header-inner nav a {

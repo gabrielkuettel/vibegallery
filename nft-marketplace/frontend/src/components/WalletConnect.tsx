@@ -1,15 +1,12 @@
-import { useState } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 
 export function WalletConnect() {
   const { wallets, activeAddress, activeWallet } = useWallet()
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const handleConnect = async (walletId: string) => {
-    const wallet = wallets.find((w) => w.id === walletId)
-    if (wallet) {
-      await wallet.connect()
-      setIsModalOpen(false)
+  const handleConnect = async () => {
+    const pera = wallets.find((w) => w.id === 'pera')
+    if (pera) {
+      await pera.connect()
     }
   }
 
@@ -35,35 +32,8 @@ export function WalletConnect() {
   }
 
   return (
-    <>
-      <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-        Connect Wallet
-      </button>
-
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h3>Connect Wallet</h3>
-            <div className="wallet-buttons">
-              {wallets.map((wallet) => (
-                <button
-                  key={wallet.id}
-                  onClick={() => handleConnect(wallet.id)}
-                  className="btn btn-primary wallet-option-btn"
-                >
-                  {wallet.metadata.name}
-                </button>
-              ))}
-            </div>
-            <button
-              className="btn btn-secondary modal-close-btn"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+    <button className="btn btn-primary" onClick={handleConnect}>
+      Connect Wallet
+    </button>
   )
 }
