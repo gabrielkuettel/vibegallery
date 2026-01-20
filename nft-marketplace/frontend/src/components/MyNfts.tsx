@@ -20,8 +20,8 @@ export function MyNfts() {
 
     try {
       const owned = await getOwnedNfts()
-      // Only show ROBO NFTs (minted through this app)
-      const roboNfts = owned.filter(nft => nft.unitName === 'ROBO')
+      // Only show NFTs minted through this app (ROBO or legacy VIBE)
+      const roboNfts = owned.filter(nft => nft.unitName?.startsWith('ROBO') || nft.unitName?.startsWith('VIBE'))
       setNfts(roboNfts)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load NFTs')
