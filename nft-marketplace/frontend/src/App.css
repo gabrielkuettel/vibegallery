@@ -971,8 +971,8 @@ body::before {
   }
 
   .nft-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 
   .nft-image {
