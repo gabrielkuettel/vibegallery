@@ -133,6 +133,8 @@ body::before {
 .app-header nav {
   display: flex;
   gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
 }
 
 .app-header nav a {
@@ -1003,11 +1005,14 @@ body::before {
   .app-header nav {
     display: none;
     width: 100%;
+    flex: none;
     flex-direction: column;
+    justify-content: flex-start;
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
     padding: 0.5rem;
     margin-top: 0.5rem;
+    order: 3;
   }
 
   .app-header nav.nav-open {

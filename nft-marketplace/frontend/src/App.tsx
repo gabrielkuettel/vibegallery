@@ -36,6 +36,11 @@ function App() {
         <Link to="/" className="logo-link">
           <Logo />
         </Link>
+        <nav className={mobileNavOpen ? 'nav-open' : ''}>
+          <Link to="/" onClick={() => setMobileNavOpen(false)}>Browse</Link>
+          <Link to="/create" onClick={() => setMobileNavOpen(false)}>Create</Link>
+          <Link to="/my-nfts" onClick={() => setMobileNavOpen(false)}>My NFTs</Link>
+        </nav>
         <div className="header-right">
           <WalletConnect />
           <button
@@ -48,11 +53,6 @@ function App() {
             <span className="hamburger-line"></span>
           </button>
         </div>
-        <nav className={mobileNavOpen ? 'nav-open' : ''}>
-          <Link to="/" onClick={() => setMobileNavOpen(false)}>Browse</Link>
-          <Link to="/create" onClick={() => setMobileNavOpen(false)}>Create</Link>
-          <Link to="/my-nfts" onClick={() => setMobileNavOpen(false)}>My NFTs</Link>
-        </nav>
       </header>
 
       <main className="app-main">
