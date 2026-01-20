@@ -8,13 +8,15 @@ export function CreateNft() {
   const { createNft, isConnected } = useNft()
   const [name, setName] = useState('')
   const nameByteLength = getByteLength(name)
+  const [isKitten, setIsKitten] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<{ assetId: bigint; txId: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // Use name as the seed so robot appearance is determined by its name
+  // Use name as the seed so appearance is determined by the name
   const seed = name.trim() || 'preview'
-  const imageUrl = `https://robohash.org/${seed}.png?size=400x400`
+  const setParam = isKitten ? '&set=set4' : ''
+  const imageUrl = `https://robohash.org/${seed}.png?size=400x400${setParam}`
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +33,7 @@ export function CreateNft() {
     try {
       const nft = await createNft({
         name,
-        unitName: 'ROBO',
+        unitName: isKitten ? 'KITTY' : 'ROBO',
         imageUrl,
       })
       setResult(nft)
@@ -48,8 +50,8 @@ export function CreateNft() {
       <h2>Create NFT</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name">Name Your Robot</label>
-          <span className="form-hint">Your robot's name determines its appearance</span>
+          <label htmlFor="name">Name Your {isKitten ? 'Kitten' : 'Robot'}</label>
+          <span className="form-hint">The name determines its appearance</span>
           <input
             id="name"
             type="text"
@@ -68,14 +70,17 @@ export function CreateNft() {
 
         <div className="robot-preview">
           {name.trim() ? (
-            <img src={imageUrl} alt="Your robot" />
+            <img src={imageUrl} alt={isKitten ? 'Your kitten' : 'Your robot'} />
           ) : (
-            <div className="robot-placeholder">Type a name to see your robot</div>
+            <div className="robot-placeholder">Type a name to see your {isKitten ? 'kitten' : 'robot'}</div>
           )}
+          <button type="button" className="link-button" onClick={() => setIsKitten(!isKitten)}>
+            {isKitten ? 'Click here if you prefer robots' : 'Click here if you prefer kittens'}
+          </button>
         </div>
 
         <button type="submit" className="btn btn-primary" disabled={isLoading || !isConnected}>
-          {isLoading ? 'Minting...' : 'Mint Robot'}
+          {isLoading ? 'Minting...' : `Mint ${isKitten ? 'Kitten' : 'Robot'}`}
         </button>
       </form>
 
@@ -83,7 +88,7 @@ export function CreateNft() {
 
       {result && (
         <div className="success">
-          <p>Robot Minted!</p>
+          <p>NFT Minted!</p>
           <p>Asset ID: {result.assetId.toString()}</p>
         </div>
       )}

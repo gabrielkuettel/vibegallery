@@ -695,6 +695,21 @@ body::before {
   font-size: 0.95rem;
 }
 
+.link-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  transition: color var(--transition-fast);
+}
+
+.link-button:hover {
+  color: var(--accent-primary);
+}
+
 .listing-form h2,
 .create-nft h2 {
   text-align: center;
