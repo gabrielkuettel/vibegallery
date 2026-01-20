@@ -12,6 +12,7 @@ interface PurchaseFlowProps {
   assetInfo?: {
     name?: string
     unitName?: string
+    url?: string
   }
   onSuccess?: () => void
   onCancel?: () => void
@@ -54,6 +55,12 @@ export function PurchaseFlow({ listing, assetInfo, onSuccess, onCancel }: Purcha
   return (
     <div className="purchase-flow">
       <h2>Purchase NFT</h2>
+
+      {assetInfo?.url && (
+        <div className="purchase-nft-image">
+          <img src={assetInfo.url} alt={assetInfo.name || 'NFT'} />
+        </div>
+      )}
 
       <div className="nft-details">
         <h3>{assetInfo?.name || `Asset #${listing.assetId}`}</h3>

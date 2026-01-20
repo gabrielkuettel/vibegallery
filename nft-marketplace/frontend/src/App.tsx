@@ -27,17 +27,32 @@ function Logo() {
 }
 
 function App() {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
   return (
     <div className="app">
       <NetworkBanner />
       <header className="app-header">
-        <Logo />
-        <nav>
-          <Link to="/">Browse</Link>
-          <Link to="/create">Create</Link>
-          <Link to="/my-nfts">My NFTs</Link>
+        <Link to="/" className="logo-link">
+          <Logo />
+        </Link>
+        <div className="header-right">
+          <WalletConnect />
+          <button
+            className="hamburger-btn"
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            aria-label="Toggle navigation"
+          >
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
+        </div>
+        <nav className={mobileNavOpen ? 'nav-open' : ''}>
+          <Link to="/" onClick={() => setMobileNavOpen(false)}>Browse</Link>
+          <Link to="/create" onClick={() => setMobileNavOpen(false)}>Create</Link>
+          <Link to="/my-nfts" onClick={() => setMobileNavOpen(false)}>My NFTs</Link>
         </nav>
-        <WalletConnect />
       </header>
 
       <main className="app-main">
